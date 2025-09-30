@@ -513,6 +513,33 @@ const VisualSearchGeneratorStandalone = () => {
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  // Handler for importing config file
+  function handleConfigImport(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const config = JSON.parse(e.target?.result as string);
+        // Update settings from config
+        if (typeof config.distractorCount === 'number') setDistractorCount(config.distractorCount);
+        if (typeof config.targetSlashCount === 'number') setTargetSlashCount(config.targetSlashCount);
+        if (typeof config.stimulusSize === 'number') setStimulusSize(config.stimulusSize);
+        if (typeof config.fontSize === 'number') setFontSize(config.fontSize);
+        if (typeof config.correctTargetColor === 'string') setCorrectTargetColor(config.correctTargetColor);
+        if (Array.isArray(config.selectedDistractorColors)) setSelectedDistractorColors(config.selectedDistractorColors);
+        if (Array.isArray(config.selectedFalseTargetColors)) setSelectedFalseTargetColors(config.selectedFalseTargetColors);
+        if (typeof config.repeatPercentage === 'number') setRepeatPercentage(config.repeatPercentage);
+        if (typeof config.fixationDuration === 'number') setFixationDuration(config.fixationDuration);
+        if (typeof config.totalTrials === 'number') setTotalTrials(config.totalTrials);
+      } catch (err) {
+        alert('Invalid config file.');
+      }
+    };
+    reader.readAsText(file);
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.maxWidth}>
@@ -522,6 +549,20 @@ const VisualSearchGeneratorStandalone = () => {
             Generate customizable visual search stimuli with colors and spatial arrangement
           </p>
         </div>
+        {/* Config file input */}
+        {!experimentActive && showControls && (
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ ...styles.label, marginBottom: '8px' }}>
+              Import Config File (JSON):
+              <input
+                type="file"
+                accept=".json,application/json"
+                style={{ marginLeft: '8px' }}
+                onChange={handleConfigImport}
+              />
+            </label>
+          </div>
+        )}
         {/* Toggle and Start Experiment buttons */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
           {!experimentActive && (
